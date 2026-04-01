@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Cuenta de Cobro · Influencers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0d0a;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --gold: #c9a84c;
+    --gold-light: #e8d49a;
+    --rust: #b84c2e;
+    --sage: #4a6741;
+    --rule: #c8bfaf;
+    --white: #fdfaf4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 0;
+    position: relative;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  .page-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .header-sub {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #7a6e5e;
+    line-height: 1.6;
+  }
+
+  /* UVT badge */
+  .uvt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 5px 12px;
+    margin-top: 14px;
+  }
+
+  .uvt-badge span { color: var(--gold); font-weight: 500; }
+
+  /* Section */
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #8a7e6e;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* Input field */
+  .input-row {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid var(--ink);
+    background: var(--white);
+    transition: box-shadow 0.2s;
+  }
+
+  .input-row:focus-within {
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .input-prefix {
+    padding: 14px 16px;
+    background: var(--ink);
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .input-row input {
+    flex: 1;
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 400;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    outline: none;
+    min-width: 0;
+  }
+
+  .input-row input::placeholder { color: #bbb5a8; }
+
+  /* Radio group */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--rule);
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .radio-option:hover {
+    border-color: var(--ink);
+  }
+
+  .radio-option.active {
+    border-color: var(--ink);
+    background: var(--cream);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .radio-option input[type="radio"] {
+    display: none;
+  }
+
+  .radio-dot {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--rule);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s;
+  }
+
+  .radio-option.active .radio-dot {
+    border-color: var(--ink);
+  }
+
+  .radio-dot::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: var(--ink);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .radio-option.active .radio-dot::after { opacity: 1; }
+
+  .radio-text { flex: 1; }
+
+  .radio-title {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .radio-desc {
+    font-size: 10px;
+    color: #8a7e6e;
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  /* Toggle row */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1.5px solid var(--rule);
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-row.active {
+    border-color: var(--ink);
+    background: var(--cream);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .toggle-row:hover { border-color: var(--ink); }
+
+  .toggle-info { flex: 1; }
+
+  .toggle-title {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .toggle-desc {
+    font-size: 10px;
+    color: #8a7e6e;
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  .toggle-switch {
+    width: 38px;
+    height: 22px;
+    border: 1.5px solid var(--rule);
+    background: var(--paper);
+    border-radius: 0;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .toggle-row.active .toggle-switch {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: var(--rule);
+    transition: all 0.2s;
+  }
+
+  .toggle-row.active .toggle-switch::after {
+    left: 18px;
+    background: var(--gold);
+  }
+
+  /* Results */
+  .result-card {
+    border: 2px solid var(--ink);
+    background: var(--white);
+    box-shadow: 4px 4px 0 var(--ink);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .result-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .result-header {
+    background: var(--ink);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-header-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--rule);
+    text-transform: uppercase;
+  }
+
+  .result-header-year {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .result-body {
+    padding: 20px;
+  }
+
+  .result-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--rule);
+    gap: 12px;
+  }
+
+  .result-line:last-child { border-bottom: none; }
+
+  .result-line-label {
+    font-size: 11px;
+    color: #6a5e4e;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .result-line-label .badge {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    background: var(--rule);
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .result-line-value {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .result-line-value.negative { color: var(--rust); }
+  .result-line-value.neutral { color: #6a5e4e; }
+
+  .result-divider {
+    height: 2px;
+    background: var(--ink);
+    margin: 4px 0 8px;
+  }
+
+  .result-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 4px;
+    gap: 12px;
+  }
+
+  .result-total-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+  }
+
+  .result-total-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--sage);
+    letter-spacing: -0.02em;
+  }
+
+  .result-total-value.zero { color: var(--rule); }
+
+  .result-sub {
+    font-size: 10px;
+    color: #8a7e6e;
+    margin-top: 4px;
+  }
+
+  /* Highlight box for cuenta de cobro */
+  .cobro-highlight {
+    background: var(--gold-light);
+    border: 1.5px solid var(--gold);
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cobro-label {
+    font-size: 11px;
+    color: #5a4a2e;
+    line-height: 1.4;
+  }
+
+  .cobro-label strong {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    color: #8a6a1e;
+  }
+
+  .cobro-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #5a3a00;
+    white-space: nowrap;
+  }
+
+  /* UVT info */
+  .uvt-info {
+    margin-top: 10px;
+    font-size: 9px;
+    color: #9a8e7e;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-left: 2px solid var(--rule);
+  }
+
+  /* Warning */
+  .warning-box {
+    border: 1.5px solid #d4a84c;
+    background: #fdf4e0;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 10px;
+    color: #7a5a10;
+    line-height: 1.6;
+  }
+
+  .warning-box strong {
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 9px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--rule);
+  }
+
+  .empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+  .empty-state p { font-size: 11px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-size: 9px;
+    color: #a89e8e;
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 480px) {
+    .cobro-value { font-size: 24px; }
+    .result-total-value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header class="header">
+    <div class="header-eyebrow">Campaign Finance Tools</div>
+    <h1>Calculadora de<br><em>Cuenta de Cobro</em><br>Influencers</h1>
+    <p class="header-sub">
+      Calcula el valor bruto que debe ir en la cuenta de cobro para que,<br>
+      después de retenciones, el influencer reciba exactamente el valor neto pactado.
+    </p>
+    <div class="uvt-badge">UVT 2026 · <span>$52.374</span> · Res. DIAN 000238</div>
+  </header>
+
+  <!-- Valor neto deseado -->
+  <div class="section">
+    <div class="section-label">01 · Valor neto que desea recibir el influencer</div>
+    <div class="input-row">
+      <span class="input-prefix">COP $</span>
+      <input type="text" id="valorNeto" placeholder="1.000.000" oninput="formatInput(this); calcular()" inputmode="numeric">
+    </div>
+  </div>
+
+  <!-- Tipo de retefuente -->
+  <div class="section">
+    <div class="section-label">02 · Tipo de retefuente aplicable</div>
+    <div class="radio-group">
+      <label class="radio-option active" id="opt-art383" onclick="selectRetefuente('art383')">
+        <input type="radio" name="retefuente" value="art383" checked>
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <div class="radio-title">Tabla Art. 383 E.T. — Rentas de trabajo</div>
+          <div class="radio-desc">El influencer solicita en su cuenta de cobro que se aplique la tabla de retención progresiva del Art. 383 E.T. (Ley 2277/2022, Pár. 2). Se calcula sobre pagos mensualizados. UVT 2026: $52.374.</div>
+        </div>
+      </label>
+      <label class="radio-option" id="opt-honorarios" onclick="selectRetefuente('honorarios')">
+        <input type="radio" name="retefuente" value="honorarios">
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <div class="radio-title">10% Honorarios — Art. 392 E.T.</div>
+          <div class="radio-desc">Tarifa fija del 10% por concepto de honorarios. Aplica cuando la cuenta de cobro no solicita expresamente la tabla del Art. 383 E.T.</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- ReteICA -->
+  <div class="section">
+    <div class="section-label">03 · ReteICA — Territoralidad Cali</div>
+    <div class="toggle-row" id="toggle-reteica" onclick="toggleReteica()">
+      <div class="toggle-info">
+        <div class="toggle-title">Aplicar ReteICA Cali</div>
+        <div class="toggle-desc">Activa si el servicio se entiende prestado en jurisdicción de Cali. Tarifa: 10 × 1.000 (actividades de publicidad/marketing, CIIU 7430/servicios similares). Base mínima: 15 UVT ($785.610). El ReteICA en Cali equivale al 100% del ICA de la actividad.</div>
+      </div>
+      <div class="toggle-switch"></div>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div class="section">
+    <div class="section-label">04 · Resultado</div>
+    <div class="result-card" id="resultCard">
+      <div class="empty-state" id="emptyState">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <p>Ingresa el valor neto para ver el cálculo</p>
+      </div>
+      <div id="resultContent" style="display:none">
+        <div class="result-header">
+          <span class="result-header-label">Desglose de retenciones</span>
+          <span class="result-header-year">Art. 383 E.T. · UVT 2026</span>
+        </div>
+        <div class="result-body">
+          <div class="result-line">
+            <span class="result-line-label">Valor neto pactado<span class="badge">NETO</span></span>
+            <span class="result-line-value neutral" id="res-neto">—</span>
+          </div>
+          <div class="result-line" id="row-retefuente">
+            <span class="result-line-label" id="label-retefuente">Retefuente Art. 383</span>
+            <span class="result-line-value negative" id="res-retefuente">—</span>
+          </div>
+          <div class="result-line" id="row-reteica" style="display:none">
+            <span class="result-line-label">ReteICA Cali<span class="badge">10‰</span></span>
+            <span class="result-line-value negative" id="res-reteica">—</span>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-total">
+            <div>
+              <div class="result-total-label">Valor bruto cuenta de cobro</div>
+              <div class="result-sub" id="sub-bruto">—</div>
+            </div>
+            <div class="result-total-value" id="res-bruto">—</div>
+          </div>
+          <div class="cobro-highlight">
+            <div class="cobro-label">
+              <strong>Escribir en la cuenta de cobro</strong>
+              Este es el valor que debe consignarse. Sobre él se aplicarán las retenciones, resultando en el pago neto pactado.
+            </div>
+            <div class="cobro-value" id="res-cobro">—</div>
+          </div>
+          <div class="uvt-info" id="uvt-info-box"></div>
+          <div id="warning-rango" class="warning-box" style="display:none">
+            <strong>⚠ Rango Art. 383 — Revisar con asesor</strong>
+            El pago mensualizado se ubica en la tabla progresiva. La tarifa marginal efectiva puede variar según si el influencer tiene otros ingresos en el mismo período. Se recomienda que el influencer confirme con su contador.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <strong style="color:#6a5e4e">Notas tributarias</strong><br>
+    · Retefuente Art. 383: para pagos de un único contrato se mensualiza el valor (total contrato ÷ meses de vigencia) y se ubica en la tabla progresiva. Si el contrato es por un pago único, se toma el valor íntegro.<br>
+    · Honorarios 10%: aplica cuando no existe manifestación expresa del influencer de acogerse al Art. 383 E.T.<br>
+    · ReteICA Cali: aplica únicamente cuando el hecho generador ocurre en jurisdicción de Cali (servicio prestado allí). Base mínima 15 UVT. Tarifa de referencia para actividades de publicidad/marketing digital. Verifique el CIIU exacto del influencer.<br>
+    · Esta calculadora usa UVT 2026 = $52.374 (Res. DIAN 000238, 15-dic-2025). Actualice el UVT al inicio de cada año gravable.<br>
+    · Este resultado es orientativo. Consulte siempre con un contador o asesor tributario para casos específicos.
+  </footer>
+
+</div>
+
+<script>
+// ─── Constantes tributarias 2026 ───────────────────────────────────────────
+const UVT = 52374;
+
+// Tabla Art. 383 E.T. (7 rangos — Ley 2277 de 2022)
+// Formato: [limInf_UVT, limSup_UVT, tarifa, impuestoFijo_UVT]
+const TABLA_383 = [
+  [0,     95,   0.00,  0],
+  [95,   150,   0.19, 0],
+  [150,  360,   0.28, 10],
+  [360,  640,   0.33, 69],
+  [640,  945,   0.35, 162],
+  [945, 2300,   0.37, 268.7],
+  [2300, Infinity, 0.39, 770.2],
+];
+
+let retefuenteTipo = 'art383';
+let reteicaActiva = false;
+
+// ─── Cálculo de retefuente Art. 383 (sobre valor bruto) ────────────────────
+// Para cuenta de cobro independiente (pago único = un mes)
+// Retorna la TARIFA MARGINAL efectiva (usada en el despeje algebraico)
+function calcReteFuente383_bruto(bruto) {
+  const baseUVT = bruto / UVT;
+  for (let i = TABLA_383.length - 1; i >= 0; i--) {
+    const [lo, hi, tasa, fijo] = TABLA_383[i];
+    if (baseUVT > lo) {
+      // Impuesto = (baseUVT - lo) * tasa + fijo (en UVT) → convertir a pesos
+      const impuestoUVT = (baseUVT - lo) * tasa + fijo;
+      return impuestoUVT * UVT;
+    }
+  }
+  return 0;
+}
+
+// Rango de la tabla para mostrar info
+function getRango383(bruto) {
+  const baseUVT = bruto / UVT;
+  for (let i = TABLA_383.length - 1; i >= 0; i--) {
+    const [lo, hi, tasa] = TABLA_383[i];
+    if (baseUVT > lo) {
+      return { lo, hi: hi === Infinity ? '∞' : hi, tasa };
+    }
+  }
+  return { lo: 0, hi: 95, tasa: 0 };
+}
+
+// ─── Despeje algebraico para valor bruto ───────────────────────────────────
+// NETO = BRUTO - ReteFuente(BRUTO) - ReteICA(BRUTO)
+// ReteFuente 10% = 0.10 × BRUTO  → BRUTO = NETO / (1 - 0.10 - reteica_rate)
+// ReteFuente 383 = progresiva → iterar / resolver analíticamente por tramos
+
+function calcBruto(neto) {
+  const rateICA = reteicaActiva ? 0.010 : 0;
+
+  if (retefuenteTipo === 'honorarios') {
+    // Simple: bruto × (1 - 0.10 - rateICA) = neto
+    const rate = 0.10 + rateICA;
+    if (rate >= 1) return { bruto: 0, err: true };
+    const bruto = neto / (1 - rate);
+    return { bruto, reteFuente: bruto * 0.10, reteICA: bruto * rateICA };
+  }
+
+  // Art. 383 progresivo: resolver por tramos
+  // En cada tramo i: bruto - [(bruto/UVT - lo_i)*tasa_i + fijo_i]*UVT - rateICA*bruto = neto
+  // bruto*(1 - tasa_i - rateICA) = neto + (fijo_i - lo_i*tasa_i)*UVT
+  // bruto = (neto + (fijo_i - lo_i*tasa_i)*UVT) / (1 - tasa_i - rateICA)
+
+  for (let i = 0; i < TABLA_383.length; i++) {
+    const [lo, hi, tasa, fijo] = TABLA_383[i];
+    const denom = 1 - tasa - rateICA;
+    if (denom <= 0) continue;
+    const bruto = (neto + (fijo - lo * tasa) * UVT) / denom;
+    const brutoUVT = bruto / UVT;
+    // Verificar que bruto cae en este tramo
+    const hiNum = hi === Infinity ? Infinity : hi;
+    if (brutoUVT > lo && brutoUVT <= hiNum) {
+      const reteFuente = calcReteFuente383_bruto(bruto);
+      const reteICA = bruto * rateICA;
+      return { bruto, reteFuente, reteICA };
+    }
+  }
+
+  // Si no converge (caso extremo), usar último tramo
+  const last = TABLA_383[TABLA_383.length - 1];
+  const [lo, , tasa, fijo] = last;
+  const denom = 1 - tasa - rateICA;
+  const bruto = (neto + (fijo - lo * tasa) * UVT) / denom;
+  return { bruto, reteFuente: calcReteFuente383_bruto(bruto), reteICA: bruto * rateICA };
+}
+
+// ─── Formato de moneda ─────────────────────────────────────────────────────
+function fmt(n) {
+  if (isNaN(n)) return '—';
+  return '$ ' + Math.round(n).toLocaleString('es-CO');
+}
+
+function parseNum(s) {
+  return parseFloat(s.replace(/\./g, '').replace(/,/g, '.')) || 0;
+}
+
+function formatInput(el) {
+  const raw = el.value.replace(/[^\d]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = parseInt(raw, 10).toLocaleString('es-CO');
+}
+
+// ─── Selects ───────────────────────────────────────────────────────────────
+function selectRetefuente(tipo) {
+  retefuenteTipo = tipo;
+  document.getElementById('opt-art383').classList.toggle('active', tipo === 'art383');
+  document.getElementById('opt-honorarios').classList.toggle('active', tipo === 'honorarios');
+  calcular();
+}
+
+function toggleReteica() {
+  reteicaActiva = !reteicaActiva;
+  document.getElementById('toggle-reteica').classList.toggle('active', reteicaActiva);
+  calcular();
+}
+
+// ─── Cálculo principal ─────────────────────────────────────────────────────
+function calcular() {
+  const input = document.getElementById('valorNeto').value;
+  const neto = parseNum(input.replace(/\./g, ''));
+
+  const card = document.getElementById('resultCard');
+  const empty = document.getElementById('emptyState');
+  const content = document.getElementById('resultContent');
+
+  if (!neto || neto <= 0) {
+    empty.style.display = '';
+    content.style.display = 'none';
+    card.classList.remove('visible');
+    return;
+  }
+
+  card.classList.add('visible');
+  empty.style.display = 'none';
+  content.style.display = '';
+
+  const { bruto, reteFuente, reteICA } = calcBruto(neto);
+
+  // Verificar base mínima ReteICA (15 UVT)
+  const baseMinReteICA = 15 * UVT; // $785.610
+  const reteICAefectiva = (reteicaActiva && bruto >= baseMinReteICA) ? reteICA : 0;
+  // Recalcular si ReteICA no aplica por base mínima
+  let brutoFinal = bruto;
+  let reteFuenteFinal = reteFuente;
+  let reteICAFinal = reteICAefectiva;
+
+  if (reteicaActiva && bruto < baseMinReteICA) {
+    // Recalcular sin ReteICA
+    const r = calcBruto_sinICA(neto);
+    brutoFinal = r.bruto;
+    reteFuenteFinal = r.reteFuente;
+    reteICAFinal = 0;
+  }
+
+  // DOM
+  document.getElementById('res-neto').textContent = fmt(neto);
+  document.getElementById('label-retefuente').innerHTML = retefuenteTipo === 'art383'
+    ? 'Retefuente Art. 383 E.T. <span class="badge">PROGRESIVA</span>'
+    : 'Retefuente Honorarios <span class="badge">10%</span>';
+  document.getElementById('res-retefuente').textContent = '− ' + fmt(reteFuenteFinal);
+
+  const rowICA = document.getElementById('row-reteica');
+  rowICA.style.display = reteicaActiva ? '' : 'none';
+  if (reteicaActiva) {
+    document.getElementById('res-reteica').textContent = reteICAFinal > 0
+      ? '− ' + fmt(reteICAFinal)
+      : '$ 0 (bajo base mínima)';
+  }
+
+  document.getElementById('res-bruto').textContent = fmt(brutoFinal);
+  document.getElementById('res-cobro').textContent = fmt(brutoFinal);
+
+  // Sub-info bruto
+  const brutoUVT = (brutoFinal / UVT).toFixed(2);
+  document.getElementById('sub-bruto').textContent = brutoUVT + ' UVT · Valor redondeado';
+
+  // UVT info box
+  const uvtBox = document.getElementById('uvt-info-box');
+  if (retefuenteTipo === 'art383') {
+    const rango = getRango383(brutoFinal);
+    const tasaPct = (rango.tasa * 100).toFixed(0);
+    const hiStr = rango.hi === '∞' ? 'en adelante' : rango.hi + ' UVT';
+    uvtBox.innerHTML = `
+      Rango aplicable: <strong>&gt;${rango.lo} UVT hasta ${hiStr}</strong> · Tarifa marginal: <strong>${tasaPct}%</strong><br>
+      Base gravable: <strong>${brutoUVT} UVT</strong> = ${fmt(brutoFinal)} ÷ $52.374 (UVT 2026)<br>
+      Retefuente calculada: ${fmt(reteFuenteFinal)} (efectiva: ${brutoFinal > 0 ? ((reteFuenteFinal/brutoFinal)*100).toFixed(2) : 0}% del bruto)
+    `;
+  } else {
+    uvtBox.innerHTML = `
+      Tarifa fija: <strong>10%</strong> sobre el valor bruto de la cuenta de cobro<br>
+      Retefuente: ${fmt(reteFuenteFinal)} = 10% × ${fmt(brutoFinal)}
+    `;
+  }
+
+  // Warning rango alto
+  const warningEl = document.getElementById('warning-rango');
+  const rango = getRango383(brutoFinal);
+  warningEl.style.display = (retefuenteTipo === 'art383' && rango.tasa > 0) ? '' : 'none';
+
+  // Verificación: neto ≈ bruto - reteFuente - reteICA
+  const netoVerif = brutoFinal - reteFuenteFinal - reteICAFinal;
+  // (silencioso — para debug: console.log('Verificación:', netoVerif, neto))
+}
+
+function calcBruto_sinICA(neto) {
+  const rateICA = 0;
+  if (retefuenteTipo === 'honorarios') {
+    const bruto = neto / 0.90;
+    return { bruto, reteFuente: bruto * 0.10, reteICA: 0 };
+  }
+  for (let i = 0; i < TABLA_383.length; i++) {
+    const [lo, hi, tasa, fijo] = TABLA_383[i];
+    const denom = 1 - tasa;
+    if (denom <= 0) continue;
+    const bruto = (neto + (fijo - lo * tasa) * UVT) / denom;
+    const brutoUVT = bruto / UVT;
+    const hiNum = hi === Infinity ? Infinity : hi;
+    if (brutoUVT > lo && brutoUVT <= hiNum) {
+      return { bruto, reteFuente: calcReteFuente383_bruto(bruto), reteICA: 0 };
+    }
+  }
+  const [lo,,tasa,fijo] = TABLA_383[TABLA_383.length - 1];
+  const bruto = (neto + (fijo - lo * tasa) * UVT) / (1 - tasa);
+  return { bruto, reteFuente: calcReteFuente383_bruto(bruto), reteICA: 0 };
+}
+</script>
+</body>
+</html>
