@@ -557,7 +557,7 @@
     <div class="toggle-row" id="toggle-reteica" onclick="toggleReteica()">
       <div class="toggle-info">
         <div class="toggle-title">Aplicar ReteICA Cali</div>
-        <div class="toggle-desc">Activa si el servicio se entiende prestado en jurisdicción de Cali. Tarifa: 10 × 1.000 (actividades de publicidad/marketing, CIIU 7430/servicios similares). Base mínima: 15 UVT ($785.610). El ReteICA en Cali equivale al 100% del ICA de la actividad.</div>
+        <div class="toggle-desc">Activa si el servicio se entiende prestado en jurisdicción de Cali. Tarifa: 10 × 1.000 (actividades de publicidad/marketing, CIIU 7430/servicios similares). Base mínima: 3 UVT ($157.122). El ReteICA en Cali equivale al 100% del ICA de la actividad.</div>
       </div>
       <div class="toggle-switch"></div>
     </div>
@@ -618,7 +618,7 @@
     <strong style="color:#6a5e4e">Notas tributarias</strong><br>
     · Retefuente Art. 383: para pagos de un único contrato se mensualiza el valor (total contrato ÷ meses de vigencia) y se ubica en la tabla progresiva. Si el contrato es por un pago único, se toma el valor íntegro.<br>
     · Honorarios 10%: aplica cuando no existe manifestación expresa del influencer de acogerse al Art. 383 E.T.<br>
-    · ReteICA Cali: aplica únicamente cuando el hecho generador ocurre en jurisdicción de Cali (servicio prestado allí). Base mínima 15 UVT. Tarifa de referencia para actividades de publicidad/marketing digital. Verifique el CIIU exacto del influencer.<br>
+    · ReteICA Cali: aplica únicamente cuando el hecho generador ocurre en jurisdicción de Cali (servicio prestado allí). Base mínima 3 UVT ($157.122). Tarifa de referencia para actividades de publicidad/marketing digital. Verifique el CIIU exacto del influencer.<br>
     · Esta calculadora usa UVT 2026 = $52.374 (Res. DIAN 000238, 15-dic-2025). Actualice el UVT al inicio de cada año gravable.<br>
     · Este resultado es orientativo. Consulte siempre con un contador o asesor tributario para casos específicos.
   </footer>
@@ -768,8 +768,8 @@ function calcular() {
 
   const { bruto, reteFuente, reteICA } = calcBruto(neto);
 
-  // Verificar base mínima ReteICA (15 UVT)
-  const baseMinReteICA = 15 * UVT; // $785.610
+  // Verificar base mínima ReteICA (3 UVT)
+  const baseMinReteICA = 3 * UVT; // $157.122
   const reteICAefectiva = (reteicaActiva && bruto >= baseMinReteICA) ? reteICA : 0;
   // Recalcular si ReteICA no aplica por base mínima
   let brutoFinal = bruto;
