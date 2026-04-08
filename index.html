@@ -544,8 +544,8 @@
         <input type="radio" name="retefuente" value="honorarios">
         <div class="radio-dot"></div>
         <div class="radio-text">
-          <div class="radio-title">10% Honorarios — Art. 392 E.T.</div>
-          <div class="radio-desc">Tarifa fija del 10% por concepto de honorarios. Aplica cuando la cuenta de cobro no solicita expresamente la tabla del Art. 383 E.T.</div>
+          <div class="radio-title">11% Honorarios — Art. 392 E.T.</div>
+          <div class="radio-desc">Tarifa fija del 11% por concepto de honorarios (persona natural declarante de renta). Aplica cuando la cuenta de cobro no solicita expresamente la tabla del Art. 383 E.T., o cuando se desconoce la calidad tributaria del influencer.</div>
         </div>
       </label>
     </div>
@@ -617,7 +617,7 @@
   <footer class="footer">
     <strong style="color:#6a5e4e">Notas tributarias</strong><br>
     · Retefuente Art. 383: para pagos de un único contrato se mensualiza el valor (total contrato ÷ meses de vigencia) y se ubica en la tabla progresiva. Si el contrato es por un pago único, se toma el valor íntegro.<br>
-    · Honorarios 10%: aplica cuando no existe manifestación expresa del influencer de acogerse al Art. 383 E.T.<br>
+    · Honorarios 11%: tarifa para persona natural declarante de renta (Art. 392 E.T.). Se aplica cuando no existe manifestación expresa del influencer de acogerse al Art. 383 E.T., o cuando se desconoce su calidad tributaria. Posición conservadora ante la DIAN.<br>
     · ReteICA Cali: aplica únicamente cuando el hecho generador ocurre en jurisdicción de Cali (servicio prestado allí). Base mínima 3 UVT ($157.122). Tarifa de referencia para actividades de publicidad/marketing digital. Verifique el CIIU exacto del influencer.<br>
     · Esta calculadora usa UVT 2026 = $52.374 (Res. DIAN 000238, 15-dic-2025). Actualice el UVT al inicio de cada año gravable.<br>
     · Este resultado es orientativo. Consulte siempre con un contador o asesor tributario para casos específicos.
@@ -674,7 +674,7 @@ function getRango383(bruto) {
 
 // ─── Despeje algebraico para valor bruto ───────────────────────────────────
 // NETO = BRUTO - ReteFuente(BRUTO) - ReteICA(BRUTO)
-// ReteFuente 10% = 0.10 × BRUTO  → BRUTO = NETO / (1 - 0.10 - reteica_rate)
+// ReteFuente 11% = 0.11 × BRUTO  → BRUTO = NETO / (1 - 0.11 - reteica_rate)
 // ReteFuente 383 = progresiva → iterar / resolver analíticamente por tramos
 
 function calcBruto(neto) {
@@ -682,10 +682,10 @@ function calcBruto(neto) {
 
   if (retefuenteTipo === 'honorarios') {
     // Simple: bruto × (1 - 0.10 - rateICA) = neto
-    const rate = 0.10 + rateICA;
+    const rate = 0.11 + rateICA;
     if (rate >= 1) return { bruto: 0, err: true };
     const bruto = neto / (1 - rate);
-    return { bruto, reteFuente: bruto * 0.10, reteICA: bruto * rateICA };
+    return { bruto, reteFuente: bruto * 0.11, reteICA: bruto * rateICA };
   }
 
   // Art. 383 progresivo: resolver por tramos
@@ -788,7 +788,7 @@ function calcular() {
   document.getElementById('res-neto').textContent = fmt(neto);
   document.getElementById('label-retefuente').innerHTML = retefuenteTipo === 'art383'
     ? 'Retefuente Art. 383 E.T. <span class="badge">PROGRESIVA</span>'
-    : 'Retefuente Honorarios <span class="badge">10%</span>';
+    : 'Retefuente Honorarios <span class="badge">11%</span>';
   document.getElementById('res-retefuente').textContent = '− ' + fmt(reteFuenteFinal);
 
   const rowICA = document.getElementById('row-reteica');
@@ -819,8 +819,8 @@ function calcular() {
     `;
   } else {
     uvtBox.innerHTML = `
-      Tarifa fija: <strong>10%</strong> sobre el valor bruto de la cuenta de cobro<br>
-      Retefuente: ${fmt(reteFuenteFinal)} = 10% × ${fmt(brutoFinal)}
+      Tarifa fija: <strong>11%</strong> sobre el valor bruto de la cuenta de cobro<br>
+      Retefuente: ${fmt(reteFuenteFinal)} = 11% × ${fmt(brutoFinal)}
     `;
   }
 
@@ -837,8 +837,8 @@ function calcular() {
 function calcBruto_sinICA(neto) {
   const rateICA = 0;
   if (retefuenteTipo === 'honorarios') {
-    const bruto = neto / 0.90;
-    return { bruto, reteFuente: bruto * 0.10, reteICA: 0 };
+    const bruto = neto / 0.89;
+    return { bruto, reteFuente: bruto * 0.11, reteICA: 0 };
   }
   for (let i = 0; i < TABLA_383.length; i++) {
     const [lo, hi, tasa, fijo] = TABLA_383[i];
